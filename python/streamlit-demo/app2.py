@@ -32,7 +32,7 @@ def response_generator():
     )
     for word in response.split():
         yield word + " "
-        time.sleep(0.05)
+        time.sleep(0.01)
 
 # My callback function
 def on_button_click(**kwargs):
