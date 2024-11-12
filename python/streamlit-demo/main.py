@@ -1,7 +1,12 @@
 import streamlit as st
-import random
 import numpy as np
-    
+import GenerateRiskInventory as riskData
+import data_provider as dp
+
+@st.cache_data
+def create_risk_data():
+    return riskData.initialize_risk_data()
+
 st.set_page_config(page_title="Discovery", menu_items={
     "About": "Risk and PnL Analysis Bot"
 })
@@ -21,16 +26,6 @@ if 'content_to_stream' not in st.session_state:
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["response"]["content"])
-
-# Streamed response emulator
-def response_generator():
-    return random.choice(
-        [
-            {"content":"Hello there! How can I assist you today?","source":"Yahoo"},
-            {"content":"Hi! Is there anything I can help you with?","source":"Bloomberg"},
-            {"content":"Do you need help?","source":"Reuters"},
-        ]
-    )
 
 # My callback function
 def on_button_click(**kwargs):
@@ -66,7 +61,7 @@ if prompt := st.chat_input("What can I help with?") or st.session_state.is_strea
 
         # Display assistant response in chat message container
         with st.chat_message("assistant"):
-            raw_response = response_generator()
+            raw_response = dp.query_risk(prompt, create_risk_data())
             response = st.markdown(raw_response["content"])
             if "source" in raw_response:
                 st.expander("Source").write(raw_response["source"])
