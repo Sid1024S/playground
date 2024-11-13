@@ -1,1 +1,3 @@
 pip freeze > requirements.txt 
+
+pip uninstall -y -r reqs.txt # clean up all dependencies

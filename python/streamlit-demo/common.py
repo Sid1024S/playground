@@ -8,7 +8,7 @@ class Query:
 @dataclass
 class QueryResponse:
     content:str
-    source:str
+    source:str = None
     df:pd.DataFrame = None
 
     def create_response(self):

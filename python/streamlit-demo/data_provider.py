@@ -10,3 +10,10 @@ def query_risk(query:Query, df:pd.DataFrame):
     filtered_df = df[df[query["filters"][0]["filter_field"]]==query["filters"][0]["filter_value"]]
     riskValue = filtered_df[filtered_df["Metric"]==query["metric"]]["RiskValue"].sum()
     return QueryResponse(content=f"Your Vega risk to AAPL is {riskValue}", source="RiskStore")
+
+def query_risk2(query:Query, df:pd.DataFrame):
+    query = create_query(query.prompt)
+    filtered_df = df[df[query["filters"][0]["filter_field"]]==query["filters"][0]["filter_value"]]
+    filtered_df = filtered_df[filtered_df["Metric"]==query["metric"]]
+    risk_value = filtered_df["RiskValue"].sum()
+    return QueryResponse(content=f"Your Vega risk to AAPL is {risk_value}", source="RiskStore", df=filtered_df)
