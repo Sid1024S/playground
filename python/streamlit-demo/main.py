@@ -2,6 +2,7 @@ import streamlit as st
 import numpy as np
 import GenerateRiskInventory as riskData
 import data_provider as dp
+from common import Query, QueryResponse
 
 @st.cache_data
 def create_risk_data():
@@ -37,7 +38,7 @@ if prompt := st.chat_input("What can I help with?") or st.session_state.is_strea
     if st.session_state.is_stream:
         st.session_state.is_stream = False
         last_message = st.session_state.messages[-1]
-        if "source" in last_message["response"]:
+        if "source" in last_message["response"] and last_message["response"]["source"] is not None:
             st.expander("Source").write(last_message["response"]["source"])
         left, right = st.columns(2)
         if(st.session_state.content_to_stream=="Chart"):
@@ -61,10 +62,10 @@ if prompt := st.chat_input("What can I help with?") or st.session_state.is_strea
 
         # Display assistant response in chat message container
         with st.chat_message("assistant"):
-            raw_response = dp.query_risk(prompt, create_risk_data())
-            response = st.markdown(raw_response["content"])
-            if "source" in raw_response:
-                st.expander("Source").write(raw_response["source"])
+            raw_response:QueryResponse = dp.query_risk(Query(prompt), create_risk_data())
+            response = st.markdown(raw_response.content)
+            if raw_response.source is not None:
+                st.expander("Source").write(raw_response.source)
 
             left, middle, right = st.columns(3)
             left.button("Data", icon=":material/dataset:", type="primary", on_click=on_button_click, kwargs={"content":"Data"})
@@ -72,4 +73,4 @@ if prompt := st.chat_input("What can I help with?") or st.session_state.is_strea
             right.button("Meeting", icon=":material/groups:", on_click=on_button_click, kwargs={"content":"Meeting"})
             
         # Add assistant response to chat history
-        st.session_state.messages.append({"role": "assistant", "response": raw_response})
+        st.session_state.messages.append({"role": "assistant", "response": raw_response.create_response()})
